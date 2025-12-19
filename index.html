@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MohanaNum Ultimate Suite</title>
+    
+    <!-- React & Babel -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Icons & Fonts -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Manrope:wght@300;400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-deep: #0b0f19;
+            --bg-card: rgba(20, 27, 41, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary: #818cf8;
+            --accent: #d97706; /* Cosmic Gold */
+            --accent-glow: rgba(217, 119, 6, 0.2);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --neutral: #64748b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Manrope', sans-serif;
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.1), transparent 40%), 
+                radial-gradient(circle at 90% 80%, rgba(217, 119, 6, 0.08), transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        h1, h2, h3, h4 { font-family: 'Cinzel', serif; margin: 0; }
+        .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: -0.5px; }
+
+        /* LAYOUT */
+        .app-wrapper { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        /* HEADER */
+        .header { text-align: center; padding: 40px 0 30px; }
+        .header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(to right, #fbbf24, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(217, 119, 6, 0.3);
+        }
+
+        /* GLASS PANELS */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            margin-bottom: 24px;
+        }
+
+        /* INPUTS */
+        .input-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+        .input-group label {
+            display: block; font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1px; color: var(--accent); margin-bottom: 8px; font-weight: 700;
+        }
+        .input-control {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
+            color: white; padding: 12px; border-radius: 8px; font-size: 1rem;
+            outline: none; transition: 0.3s; font-family: 'Manrope', sans-serif;
+        }
+        .input-control:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        
+        .btn-magic {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            color: #fff; border: none; padding: 0 30px; border-radius: 8px; height: 46px;
+            font-weight: 700; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3);
+        }
+        .btn-magic:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(217, 119, 6, 0.5); }
+
+        /* TABS */
+        .tabs { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn {
+            background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border);
+            color: var(--text-muted); padding: 10px 18px; border-radius: 8px;
+            cursor: pointer; font-weight: 600; transition: 0.3s; white-space: nowrap;
+            display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+        }
+        .tab-btn.active { background: rgba(217, 119, 6, 0.15); color: var(--accent); border-color: var(--accent); }
+        .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.05); color: white; }
+
+        /* GRID SYSTEM */
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; }
+
+        /* LABELED LO SHU GRID */
+        .loshu-wrapper { display: flex; justify-content: center; margin: 10px 0; overflow-x: auto; }
+        .loshu-grid-labeled { 
+            display: grid; 
+            grid-template-columns: 85px 85px 85px 160px; 
+            grid-template-rows: 85px 85px 85px auto;
+            gap: 4px; padding: 8px;
+            background: rgba(255,255,255,0.05); border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+        .ls-cell { 
+            background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01));
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2.2rem; font-weight: 700; color: var(--text-muted); 
+            border-radius: 4px; font-family: 'Cinzel', serif; transition: 0.3s;
+        }
+        .ls-cell.active { 
+            color: var(--text-main); 
+            border: 1px solid rgba(217, 119, 6, 0.5); 
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(0,0,0,0));
+            text-shadow: 0 0 15px var(--accent);
+        }
+        .plane-lbl { 
+            display: flex; align-items: center; padding-left: 15px; 
+            font-size: 0.75rem; color: var(--text-muted); font-weight: 700; 
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .plane-lbl-btm { 
+            display: flex; justify-content: center; padding-top: 15px; 
+            font-size: 0.75rem; color: var(--text-muted); font-weight: 700; 
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* ANALYSIS BOXES */
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 0; border-bottom: 1px dashed var(--glass-border);
+        }
+        .info-row:last-child { border-bottom: none; }
+        .lbl { color: var(--text-muted); font-size: 0.9rem; }
+        .val { font-weight: 700; color: var(--text-main); font-family: 'Cinzel', serif; }
+
+        .analysis-box {
+            background: rgba(0,0,0,0.2); border-left: 3px solid #555;
+            padding: 15px; margin-bottom: 12px; border-radius: 0 6px 6px 0;
+        }
+        .pass { border-color: var(--success); background: linear-gradient(90deg, rgba(16,185,129,0.05), transparent); }
+        .fail { border-color: var(--danger); background: linear-gradient(90deg, rgba(239,68,68,0.05), transparent); }
+        .gold { border-color: var(--accent); background: linear-gradient(90deg, rgba(217, 119, 6, 0.05), transparent); }
+        
+        .ab-title { font-weight: 700; font-size: 0.95rem; display: block; margin-bottom: 4px; color: var(--text-main); }
+        .ab-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+        .compound-text { font-size: 0.8rem; color: #94a3b8; font-style: italic; margin-top: 4px; display: block; }
+
+        /* MATH DISPLAY */
+        .math-block { background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; margin-top: 20px; border: 1px solid var(--glass-border); }
+        .math-row { display: flex; gap: 10px; margin-bottom: 6px; align-items: center; }
+        .math-lbl { width: 70px; font-size: 0.7rem; text-transform: uppercase; color: var(--accent); font-weight: bold; }
+
+        /* BADGES */
+        .badge-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+        .badge { 
+            width: 32px; height: 32px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 0.9rem;
+        }
+        .b-gold { background: var(--accent); color: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .b-outline { border: 2px solid var(--accent); color: var(--accent); }
+        .b-neutral { background: rgba(255,255,255,0.1); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* SUGGESTIONS */
+        .sugg-card { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--glass-border); border-left: 2px solid #555; }
+        .chip { display: inline-block; background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 4px; margin: 2px; font-size: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }
+
+        @media (max-width: 768px) {
+            .input-grid { grid-template-columns: 1fr 1fr; }
+            .input-group:first-child, .btn-magic { grid-column: 1 / -1; }
+            .grid-2 { grid-template-columns: 1fr; }
+            .loshu-grid-labeled { transform: scale(0.9); }
+        }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+    // ==========================================
+    // 1. ORIGINAL DATASETS
+    // ==========================================
+    const planetData = {
+        1: { name: "SUN", alias: "KING", f: [1,2,3,5,9], e: [6,8] },
+        2: { name: "MOON", alias: "QUEEN", f: [1,2,3], e: [4,8,9] }, 
+        3: { name: "JUPITER", alias: "DEVGURU", f: [1,2,3,5,9], e: [6] },
+        4: { name: "RAHU", alias: "ROBBINHOOD", f: [1,5,6,7], e: [2,4,8,9] },
+        5: { name: "MERCURY", alias: "PRINCE", f: [1,3,5,6], e: [2] },
+        6: { name: "VENUS", alias: "DAITYAGURU", f: [1,5,6,7], e: [3] },
+        7: { name: "KETU", alias: "SHADOW", f: [1,3,4,6], e: [9] },
+        8: { name: "SATURN", alias: "JUDGE", f: [3,5,6], e: [1,2,4,8,9] },
+        9: { name: "MARS", alias: "SENAPATI", f: [1,3,5,9], e: [2,4,7] }
+    };
+
+    const compoundDef = {
+        10: "Name, fame, success, honour & self-confidence. Ups and downs. Good.",
+        11: "Warning of hidden dangers, trails, and treachery. Difficulties. Avoid.",
+        12: "Suffering because of others. Disturbed Family life. Neutral.",
+        13: "Power, extreme ups and downs & new beginnings. Change of plan. Explosive.",
+        14: "Progress, movement. Speculative business, money dealing. Good.",
+        15: "Artistic, luxurious lifestyle. Charismatic. Good speakers. Good.",
+        16: "Instability, sudden obstacles. Failed marriages. Unexpected fatality. Avoid.",
+        17: "Immortality. Person's name lives after him. Peace and love. Powerful.",
+        18: "Materialism destroys spiritual side. Quarrels, war, blood. Avoid.",
+        19: "Number of a king. Success, honor, happiness. Very Lucky.",
+        20: "Awakening, delays, obstacles. New ambitions.",
+        21: "Advancement, honours, elevation. Success after long struggle. Excellent.",
+        22: "False grandeur. Dreaming in a fool's paradise. Warning.",
+        23: "Royal Star of the Lion. Help from superiors, fame. Most fortunate.",
+        24: "Love, money, success. Assistance from opposite sex. Most fortunate.",
+        25: "Strength through experience. Spiritual, not material.",
+        26: "Disaster, bad partnerships. Grave warnings. Avoid.",
+        27: "Command, authority, creative intellect. Good.",
+        28: "Tragic effect. Legal loss, trust betrayed. Contradictions.",
+        29: "Uncertainties, deception, hidden perils. Avoid.",
+        30: "Mental superiority, thoughtful. Neutral.",
+        31: "Intellectual, not material success. Loner.",
+        32: "Communication, masses. Good for media. Excellent.",
+        33: "Kubera (Wealth). Wisdom, happiness. Very fortunate.",
+        34: "Strength & stability. Success in middle age. Good.",
+        35: "Sudden rise, then fall. Coldness in family.",
+        36: "Travel, struggle, success away from home.",
+        37: "Good fortune, partnership, love. Excellent.",
+        38: "Peaceful, spiritual, powerful friends. Good.",
+        39: "Professional success, health, fine oratory. Good.",
+        40: "Isolation, separation. Good for research, bad for love.",
+        41: "Magical leadership. Can achieve the impossible. Powerful.",
+        42: "Missionary, order, steady progress. Very good.",
+        43: "Unfortunate, failure, confusion. Avoid.",
+        44: "Double 4 energy. Discipline or destruction.",
+        45: "Integrity, organizations, solid success. Powerful.",
+        46: "Ambitious, dominant, ruler. Good.",
+        47: "Movement & expansion. Good communicators. Good.",
+        48: "Prosperity in arts. Failures & command of others.",
+        49: "Good diplomats & spiritual leaders. Social. Good.",
+        50: "Intellect, freedom, versatility. Fortunate.",
+        51: "Warrior, sudden advancement, military success. Powerful.",
+        52: "Help others. Strong intuition. Good.",
+        53: "Spying, defence, politics. Unstable personal life.",
+        54: "Prosperity, intelligence, fame. Auspicious. Good.",
+        55: "Leadership, energy, science, pioneer. Victory.",
+        56: "Constructive, hard tasks. Support from people. Good.",
+        57: "Impasse. Stagnation. Problems with partner. Avoid.",
+        58: "Straight forward. Good doctors/scientists. Good.",
+        59: "Overcome obstacles. Live longer life. Good.",
+        60: "Artistic, happy, domestic bliss. Very good.",
+        61: "Smart handling, material comfort. Ambitious. Good.",
+        62: "Hurried decisions. Bad domestic life. Enemies.",
+        63: "Good health. Pure hearted. Extravagant. Neutral.",
+        64: "Freedom. Business success. Domestic problems.",
+        65: "Pleasures, influential friends. Wonderful marriage. Excellent.",
+        66: "Success on all fronts. Brilliant speakers. Powerful.",
+        67: "Vivid imagination, creativity. Communicators. Good.",
+        68: "Unlucky number, no success. Financial problems.",
+        69: "Steady development, hassle-free life. Stable family. Good.",
+        70: "Lucky, fortunate & rising. Stable life.",
+        71: "Obstacles in love & emotions. Mixed results.",
+        72: "Material success. Success in middle age.",
+        73: "Freedom, wisdom, popularity. Senior positions. Excellent."
+    };
+
+    const deepAnalysisDef = {
+        strengths: {
+            mind: { nums: [4,9,2], title: "Mind Plane (Intellect)", desc: "Excellent memory, intellectual ability, ability to analyse things." },
+            soul: { nums: [3,5,7], title: "Soul Plane (Spirituality)", desc: "Spiritual connection, golden heart, balanced emotions." },
+            prac: { nums: [8,1,6], title: "Practical Plane (Prosperity)", desc: "Materialistic, financial success, physical tasks." },
+            thought: { nums: [4,3,8], title: "Thought Plane (Planner)", desc: "Organized, disciplined, politician traits." },
+            will: { nums: [9,5,1], title: "Will Power Plane", desc: "High determination, persistence to succeed." },
+            action: { nums: [2,7,6], title: "Action Plane", desc: "Converts ideas to action, active learner." },
+            raja1: { nums: [4,5,6], title: "Golden Rajayoga 1", desc: "Great success, fame, emotional balance." },
+            raja2: { nums: [2,5,8], title: "Golden Rajayoga 2", desc: "Real Estate success. Honest, determined." }
+        },
+        weaknesses: {
+            frust: { nums: [2,5,8], title: "Arrow of Frustration", desc: "Losses & frustrations. Must think before acting." },
+            susp: { nums: [4,5,6], title: "Arrow of Suspicion", desc: "Suspicious, moody, negative approach." },
+            lone: { nums: [3,5,7], title: "Arrow of Loneliness", desc: "Unhappiness, lack of joy." },
+            loss: { nums: [8,1,6], title: "Arrow of Losses", desc: "Financial carelessness, lack of ambition." },
+            conf: { nums: [4,3,8], title: "Arrow of Confusion", desc: "Disorganized, illogical, lack of discipline." },
+            indec: { nums: [9,5,1], title: "Arrow of Indecision", desc: "Unable to decide, people pleaser." },
+            apathy: { nums: [8,7,6], title: "Arrow of Apathy", desc: "Lack of motivation, indecisive." }
+        }
+    };
+
+    const repetitionDef = {
+        1: { 1: "Introvert, difficulty expressing.", 2: "Communicative, fortunate.", 3: "Chatterbox, entertainer.", 4: "Misunderstood, sensitive." },
+        2: { 1: "Sensitive, intuitive.", 2: "High intuition & intelligence.", 3: "Dreamy, moody, recluse.", 4: "Impatient, over-emotional." },
+        3: { 1: "Excellent memory, optimistic.", 2: "Creative, imaginative.", 3: "Over-imaginative, avoids reality." },
+        4: { 1: "Practical, organized.", 2: "Workaholic, completes tasks.", 3: "Materialistic, hard worker.", 4: "Physical labor, bound." },
+        5: { 1: "Balanced, caring.", 2: "Determined, enthusiastic.", 3: "Risk taker, adventurous." },
+        6: { 1: "Family oriented.", 2: "Creative, artistic, possessive.", 3: "High stress, high creativity." },
+        7: { 1: "Spiritual, learns from life.", 2: "Analytical, occult interest.", 3: "Sadness, loss of love." },
+        8: { 1: "Meticulous.", 2: "Good decision maker.", 3: "Restless, aimless." },
+        9: { 1: "Humanitarian.", 2: "Critical, intelligent.", 3: "Giver, impractical." }
+    };
+
+    const missingDef = {
+        1: "Lack initiative & self-expression. Dependent.", 2: "Lack sensitivity & intuition. Impatient.", 3: "Lack confidence, hard to express self.", 4: "Disorganized, lack motivation.", 5: "Hard to set goals, dislike crowds.", 6: "Hide feelings, avoid responsibility.", 7: "Disorganized, neglect spiritual side.", 8: "Poor financial handling, careless.", 9: "Detached, lack humanitarianism."
+    };
+
+    const goodCompounds = [10, 14, 15, 17, 19, 21, 23, 24, 25, 27, 30, 32, 33, 37, 39, 41, 42, 45, 46, 50, 51, 55, 59, 60, 64, 69, 73];
+    const superCompounds = [19, 23, 24, 33, 37, 41, 51];
+    const chaldeanMap = { 'A':1,'I':1,'J':1,'Q':1,'Y':1, 'B':2,'K':2,'R':2, 'C':3,'G':3,'L':3,'S':3, 'D':4,'M':4,'T':4, 'E':5,'H':5,'N':5,'X':5, 'U':6,'V':6,'W':6, 'O':7,'Z':7, 'P':8,'F':8 };
+    const valToCharMap = { 1:['A','I','J','Q','Y'], 2:['B','K','R'], 3:['C','G','L','S'], 4:['D','M','T'], 5:['E','H','N','X'], 6:['U','V','W'], 7:['O','Z'], 8:['P','F'] };
+
+    const commonAffixes = [
+        { txt: "Suffix 'ji'", val: 2 }, { txt: "Suffix 'aa'", val: 2 }, { txt: "Suffix 'y'", val: 1 }, 
+        { txt: "Prefix 'Dr.'", val: 6 }, { txt: "Prefix 'Mr.'", val: 6 }, { txt: "Prefix 'Ms.'", val: 7 }, 
+        { txt: "Prefix 'Sri'", val: 6 }, { txt: "Initial 'S.'", val: 3 }, { txt: "Initial 'K.'", val: 2 }, { txt: "Initial 'A.'", val: 1 }
+    ];
+
+    // ==========================================
+    // 2. CORE LOGIC
+    // ==========================================
+
+    const reduce = (n) => { n=parseInt(n); while(n>9){ n=n.toString().split('').reduce((a,b)=>parseInt(a)+parseInt(b),0); } return n; };
+    const getNameValue = (name) => { let t=0; const c=name.replace(/[^a-zA-Z]/g,'').toUpperCase(); for(let x of c) t+=(chaldeanMap[x]||0); return {total:t, single:reduce(t)}; };
+
+    const getAdvancedSuggestions = (currentName, currentTotal, luckyList) => {
+        let suggestions = [];
+        const nameUpper = currentName.toUpperCase().replace(/[^A-Z]/g, '');
+        
+        for(let t = currentTotal + 1; t <= currentTotal + 15; t++) {
+            if(goodCompounds.includes(t) && luckyList.includes(reduce(t))) {
+                const diff = t - currentTotal;
+                let methods = [];
+
+                for(let char of nameUpper) {
+                    if(chaldeanMap[char] === diff) { methods.push(`Double '${char}'`); break; }
+                }
+                if(diff <= 8 && valToCharMap[diff]) methods.push(`Add letter '${valToCharMap[diff][0]}'`);
+                commonAffixes.forEach(affix => { if(affix.val === diff) methods.push(`Add ${affix.txt}`); });
+
+                if(methods.length > 0) {
+                    suggestions.push({ target: t, single: reduce(t), methods: methods, isSuper: superCompounds.includes(t) });
+                }
+            }
+        }
+        return suggestions.sort((a,b) => (b.isSuper?1:0) - (a.isSuper?1:0)).slice(0, 4);
+    };
+
+    // ==========================================
+    // 3. REACT APP
+    // ==========================================
+
+    const App = () => {
+        const [activeTab, setActiveTab] = React.useState('dash');
+        const [inputs, setInputs] = React.useState({ name: '', d: '', m: '', y: '', gender: 'male' });
+        const [data, setData] = React.useState(null);
+
+        const calculate = () => {
+            if(!inputs.d || !inputs.m || !inputs.y) return;
+            const d=parseInt(inputs.d), m=parseInt(inputs.m), y=parseInt(inputs.y);
+            
+            // 1. Basic Number Logic
+            const basic = reduce(d);
+
+            // 2. Destiny Logic
+            const totalSum = d+m+y;
+            const destiny = reduce(totalSum);
+
+            // 3. Kua Logic
+            let ys=0, ty=y; while(ty>0){ys+=ty%10; ty=Math.floor(ty/10);}
+            let ysReduced = reduce(ys);
+            let kuaRaw = inputs.gender==='male' ? (11-ysReduced) : (4+ysReduced);
+            let kua = reduce(kuaRaw);
+            if(kua===5) kua = inputs.gender==='male'?2:8;
+
+            // 4. Name Logic
+            const nameData = getNameValue(inputs.name);
+
+            // 5. Grid Construction
+            let gridStr = `${d}${m}${y}${basic}${destiny}${kua}${nameData.single}`;
+            let grid = [['','',''],['','',''],['','','']];
+            const fill = (n)=>{ const pos={4:[0,0],9:[0,1],2:[0,2],3:[1,0],5:[1,1],7:[1,2],8:[2,0],1:[2,1],6:[2,2]}; if(pos[n]) grid[pos[n][0]][pos[n][1]]+=n; };
+            gridStr.split('').forEach(n => fill(parseInt(n)));
+
+            // 6. Lucky Numbers Logic
+            const allNums = [1,2,3,4,5,6,7,8,9];
+            const badBN = planetData[basic]?.e || [];
+            const badDN = planetData[destiny]?.e || [];
+            const globalBad = [...new Set([...badBN, ...badDN])];
+
+            const getList = (n) => {
+                const f = planetData[n]?.f || [];
+                const e = planetData[n]?.e || [];
+                const neu = allNums.filter(x => !f.includes(x) && !e.includes(x));
+                return { f: f.filter(x=>!globalBad.includes(x)), n: neu.filter(x=>!globalBad.includes(x)) };
+            };
+            const cBN = getList(basic);
+            const cDN = getList(destiny);
+            
+            const set1 = cBN.f.filter(x => cDN.f.includes(x));
+            const poolBN = [...cBN.f, ...cBN.n];
+            const poolDN = [...cDN.f, ...cDN.n];
+            const set2 = poolBN.filter(x => poolDN.includes(x)).filter(x => !set1.includes(x));
+            
+            const luckyAll = [...new Set([...set1, ...set2])];
+
+            // 7. Calculate Neutrals (Safe numbers that are neither Lucky Set 1/2 NOR Enemy)
+            const neutralNumbers = allNums.filter(n => !globalBad.includes(n) && !luckyAll.includes(n));
+
+            // 8. Deep Analysis
+            let strengths = [], weaknesses = [];
+            Object.values(deepAnalysisDef.strengths).forEach(d => { if(d.nums.every(n => gridStr.includes(n.toString()))) strengths.push(d); });
+            Object.values(deepAnalysisDef.weaknesses).forEach(d => { if(d.nums.every(n => !gridStr.includes(n.toString()))) weaknesses.push(d); });
+
+            // Math Metadata
+            const mathData = {
+                basicSum: d,
+                destinySum: totalSum,
+                yearSum: ys,
+                yearSumRed: ysReduced,
+                kuaCalc: inputs.gender==='male' ? `11 - ${ysReduced}` : `4 + ${ysReduced}`
+            };
+
+            setData({ 
+                basic, destiny, kua, nameData, grid, gridStr, 
+                strengths, weaknesses, 
+                luckySets: { set1, set2 }, 
+                neutrals: neutralNumbers,
+                luckyAll, rawName: inputs.name, mathData, gender: inputs.gender 
+            });
+            setActiveTab('dash');
+        };
+
+        // --- COMPONENTS ---
+
+        const Dashboard = () => (
+            <div className="grid-2">
+                <div className="glass-panel">
+                    <h3 style={{marginBottom:'20px'}}>⚡ Profile Matrix</h3>
+                    
+                    <div className="info-row">
+                        <div>
+                            <div className="lbl">Basic (Driver)</div>
+                            <div className="val">{data.basic} <span style={{fontSize:'0.8rem', color:'var(--accent)'}}>({planetData[data.basic].alias})</span></div>
+                        </div>
+                        <div>
+                            <div className="lbl">Destiny (Conductor)</div>
+                            <div className="val">{data.destiny} <span style={{fontSize:'0.8rem', color:'var(--accent)'}}>({planetData[data.destiny].alias})</span></div>
+                        </div>
+                    </div>
+
+                    <div className="info-row" style={{display:'block'}}>
+                        <div style={{display:'flex', justifyContent:'space-between'}}>
+                            <div className="lbl">Name Vibration</div>
+                            <div className="val">{data.nameData.total} ({data.nameData.single})</div>
+                        </div>
+                        <span className="compound-text">"{compoundDef[data.nameData.total] || 'Meaning not defined for high compounds.'}"</span>
+                    </div>
+
+                    <div style={{marginTop:'20px'}}>
+                        <span style={{fontSize:'0.75rem', color: 'var(--success)', fontWeight:'bold', letterSpacing:'1px'}}>MAIN LUCKY NUMBERS (1st Set)</span>
+                        <div className="badge-list">
+                            {data.luckySets.set1.length ? data.luckySets.set1.map(n=><span key={n} className="badge b-gold">{n}</span>) : <span style={{fontSize:'0.8rem', opacity:0.6}}>None</span>}
+                        </div>
+                    </div>
+                     <div style={{marginTop:'15px'}}>
+                        <span style={{fontSize:'0.75rem', color: 'var(--accent)', fontWeight:'bold', letterSpacing:'1px'}}>SECONDARY (2nd Set)</span>
+                        <div className="badge-list">
+                            {data.luckySets.set2.length ? data.luckySets.set2.map(n=><span key={n} className="badge b-outline">{n}</span>) : <span style={{fontSize:'0.8rem', opacity:0.6}}>None</span>}
+                        </div>
+                    </div>
+                    <div style={{marginTop:'15px'}}>
+                        <span style={{fontSize:'0.75rem', color: 'var(--neutral)', fontWeight:'bold', letterSpacing:'1px'}}>NEUTRAL / SAFE NUMBERS</span>
+                        <div className="badge-list">
+                            {data.neutrals.length ? data.neutrals.map(n=><span key={n} className="badge b-neutral">{n}</span>) : <span style={{fontSize:'0.8rem', opacity:0.6}}>None</span>}
+                        </div>
+                    </div>
+
+                    {/* COSMIC MATH SECTION */}
+                    <div className="math-block">
+                        <h4 style={{fontSize:'0.8rem', color:'var(--accent)', marginBottom:'10px', textTransform:'uppercase'}}>🧮 Calculation Logic</h4>
+                        <div className="math-row">
+                            <span className="math-lbl">Basic</span> 
+                            <span className="mono">Day {data.mathData.basicSum} → {reduce(data.mathData.basicSum)}</span>
+                        </div>
+                        <div className="math-row">
+                            <span className="math-lbl">Destiny</span> 
+                            <span className="mono">{inputs.d} + {inputs.m} + {inputs.y} = {data.mathData.destinySum} → {reduce(data.mathData.destinySum)}</span>
+                        </div>
+                        <div className="math-row">
+                            <span className="math-lbl">Kua</span> 
+                            <span className="mono">Year Sum ({data.mathData.yearSum}) → {data.mathData.yearSumRed}. Formula: {data.mathData.kuaCalc} = {data.kua}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="glass-panel" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+                    <h3 style={{marginBottom:'20px'}}>The Lo Shu Grid</h3>
+                    <div className="loshu-wrapper">
+                        <div className="loshu-grid-labeled">
+                            <div className={`ls-cell ${data.grid[0][0]?'active':''}`}>{data.grid[0][0]}</div>
+                            <div className={`ls-cell ${data.grid[0][1]?'active':''}`}>{data.grid[0][1]}</div>
+                            <div className={`ls-cell ${data.grid[0][2]?'active':''}`}>{data.grid[0][2]}</div>
+                            <div className="plane-lbl">Mind / Intellect</div>
+
+                            <div className={`ls-cell ${data.grid[1][0]?'active':''}`}>{data.grid[1][0]}</div>
+                            <div className={`ls-cell ${data.grid[1][1]?'active':''}`}>{data.grid[1][1]}</div>
+                            <div className={`ls-cell ${data.grid[1][2]?'active':''}`}>{data.grid[1][2]}</div>
+                            <div className="plane-lbl">Soul / Emotion</div>
+
+                            <div className={`ls-cell ${data.grid[2][0]?'active':''}`}>{data.grid[2][0]}</div>
+                            <div className={`ls-cell ${data.grid[2][1]?'active':''}`}>{data.grid[2][1]}</div>
+                            <div className={`ls-cell ${data.grid[2][2]?'active':''}`}>{data.grid[2][2]}</div>
+                            <div className="plane-lbl">Body / Practical</div>
+
+                            <div className="plane-lbl-btm">Thought</div>
+                            <div className="plane-lbl-btm">Will</div>
+                            <div className="plane-lbl-btm">Action</div>
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+        const NameCorrection = () => {
+            const [propName, setPropName] = React.useState({
+                f: data.rawName.split(' ')[0]||'', 
+                l: data.rawName.split(' ').slice(1).join(' ')||''
+            });
+            
+            const analyze = (f, l, type) => {
+                const fd = getNameValue(f), ld = getNameValue(l);
+                const full = fd.total + ld.total;
+                const single = reduce(full);
+                
+                // 1. Check Lucky Sets (For Single Digit)
+                const isSet1 = data.luckySets.set1.includes(single);
+                const isSet2 = data.luckySets.set2.includes(single);
+                const isFullSingleLucky = isSet1 || isSet2; 
+
+                // 2. Check Compound Numbers (For Double Digits)
+                const isFullNameCompoundGood = goodCompounds.includes(full);
+                const isFirstNameCompoundGood = goodCompounds.includes(fd.total); 
+
+                // 3. Check First Name Single Digit
+                const isFirstNameSingleLucky = data.luckyAll.includes(fd.single); 
+
+                // Combined Criteria
+                const isFirstCriterionMet = isFirstNameCompoundGood && isFirstNameSingleLucky;
+                const allCriteriaMet = isFirstCriterionMet && isFullNameCompoundGood && isFullSingleLucky;
+
+                // --- SUGGESTION LOGIC ---
+                let suggFN = [], suggFull = [];
+                
+                if(type === 'new') {
+                    // A. If First Name is weak, suggest spelling changes
+                    if (!isFirstCriterionMet) {
+                        suggFN = getAdvancedSuggestions(f, fd.total, data.luckyAll);
+                    }
+                    // B. If Full Name is weak (or First Name fixed but Total still bad), suggest Initials/Prefixes
+                    if (!allCriteriaMet) {
+                        // Pass combined string (f+l) to generate suggestions like "Add Initial K"
+                        suggFull = getAdvancedSuggestions(f + l, full, data.luckyAll);
+                    }
+                }
+
+                return (
+                    <div className={`analysis-box ${allCriteriaMet ? 'pass' : 'fail'}`} style={{marginTop:'15px'}}>
+                        <div className="ab-title" style={{fontSize:'1.1rem'}}>{type==='cur'?'Current':'Proposed'} Name Vibrations</div>
+                        
+                        {/* FIRST NAME SECTION */}
+                        <div style={{marginTop:'10px', paddingBottom:'10px', borderBottom:'1px dashed #555'}}>
+                            <div style={{display:'flex', justifyContent:'space-between'}}>
+                                <span className="lbl">First Name Compound</span>
+                                <span className="val">{fd.total} <span style={{fontSize:'0.8rem', color: isFirstNameCompoundGood? 'var(--success)':'var(--danger)'}}>({isFirstNameCompoundGood?'Good':'Avoid'})</span></span>
+                            </div>
+                            <span className="compound-text">"{compoundDef[fd.total] || 'High compound. Reduce to single for meaning.'}"</span>
+
+                            <div style={{display:'flex', justifyContent:'space-between', marginTop:'5px'}}>
+                                <span className="lbl">First Name Single</span>
+                                <span className="val">{fd.single} <span style={{fontSize:'0.8rem', color: isFirstNameSingleLucky? 'var(--success)':'var(--danger)'}}>({isFirstNameSingleLucky?'Lucky':'Enemy'})</span></span>
+                            </div>
+                            <div style={{fontSize:'0.8rem', marginTop:'10px', fontWeight:'bold', color: isFirstCriterionMet? 'var(--success)':'var(--danger)'}}>
+                                {isFirstCriterionMet ? "✅ First Name Strong" : "⚠️ First Name Needs Correction"}
+                            </div>
+                        </div>
+
+                        {/* FULL NAME SECTION */}
+                        <div style={{marginTop:'10px'}}>
+                            <div style={{display:'flex', justifyContent:'space-between'}}>
+                                <span className="lbl">Full Name Compound</span>
+                                <span className="val">{full} <span style={{fontSize:'0.8rem', color: isFullNameCompoundGood? 'var(--success)':'var(--danger)'}}>({isFullNameCompoundGood?'Great':'Avoid'})</span></span>
+                            </div>
+                            <span className="compound-text">"{compoundDef[full] || 'High compound. Reduce to single for meaning.'}"</span>
+
+                            <div style={{display:'flex', justifyContent:'space-between', marginTop:'5px'}}>
+                                <span className="lbl">Full Name Single</span>
+                                <span className="val">{single} <span style={{fontSize:'0.8rem', color: isFullSingleLucky? 'var(--success)':'var(--danger)'}}>({isSet1?'1st Set':(isSet2?'2nd Set':'Enemy')})</span></span>
+                            </div>
+                        </div>
+
+                        {/* RECOMMENDATIONS DISPLAY */}
+                        {(suggFN.length > 0 || suggFull.length > 0) && (
+                            <div style={{marginTop:'15px', paddingTop:'10px', borderTop:'1px dashed #555'}}>
+                                
+                                {suggFN.length > 0 && (
+                                    <div style={{marginBottom:'15px'}}>
+                                        <div style={{fontSize:'0.75rem', color:'var(--accent)', fontWeight:'bold', marginBottom:'5px', textTransform:'uppercase'}}>
+                                            Fix First Name Spelling:
+                                        </div>
+                                        {suggFN.map((s, i) => (
+                                            <div key={i} className="sugg-card">
+                                                <div style={{fontWeight:'bold', color: s.isSuper?'var(--accent)':'white'}}>Target: {s.target} ({s.single}) {s.isSuper && '✨'}</div>
+                                                <div>{s.methods.map((m,k)=><span key={k} className="chip">{m}</span>)}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {suggFull.length > 0 && (
+                                    <div>
+                                        <div style={{fontSize:'0.75rem', color:'var(--success)', fontWeight:'bold', marginBottom:'5px', textTransform:'uppercase'}}>
+                                            Fix Full Name (Add Initials/Prefix):
+                                        </div>
+                                        {suggFull.map((s, i) => (
+                                            <div key={i} className="sugg-card" style={{borderColor:'var(--success)', borderLeftColor:'var(--success)'}}>
+                                                <div style={{fontWeight:'bold', color: s.isSuper?'var(--success)':'white'}}>Target: {s.target} ({s.single}) {s.isSuper && '✨'}</div>
+                                                <div>{s.methods.map((m,k)=><span key={k} className="chip">{m}</span>)}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                );
+            };
+
+            return (
+                <div className="grid-2">
+                    <div className="glass-panel">
+                        <h3>Current Name</h3>
+                        <div style={{opacity:0.6, fontSize:'0.9rem', marginBottom:'10px'}}>{data.rawName}</div>
+                        {analyze(data.rawName.split(' ')[0], data.rawName.split(' ').slice(1).join(' '), 'cur')}
+                    </div>
+                    <div className="glass-panel">
+                        <h3>Name Correction</h3>
+                        <div className="input-grid" style={{gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'0'}}>
+                            <input className="input-control" value={propName.f} onChange={e=>setPropName({...propName, f:e.target.value})} placeholder="First Name" />
+                            <input className="input-control" value={propName.l} onChange={e=>setPropName({...propName, l:e.target.value})} placeholder="Last Name" />
+                        </div>
+                        {analyze(propName.f, propName.l, 'new')}
+                    </div>
+                </div>
+            );
+        };
+
+        const DeepAnalysis = () => (
+            <div className="grid-2">
+                <div className="glass-panel">
+                    <h3 style={{color:'var(--success)', marginBottom:'15px'}}>Yogas (Strengths)</h3>
+                    {data.strengths.length > 0 ? data.strengths.map((s,i)=>(
+                        <div key={i} className={`analysis-box ${s.title.includes('Rajayoga')?'gold':'pass'}`}>
+                            <span className="ab-title">{s.title} ({s.nums.join('-')})</span>
+                            <span className="ab-desc">{s.desc}</span>
+                        </div>
+                    )) : <p style={{color:'var(--text-muted)'}}>No complete strength planes found.</p>}
+                </div>
+                <div className="glass-panel">
+                    <h3 style={{color:'var(--danger)', marginBottom:'15px'}}>Doshas (Weaknesses)</h3>
+                    {data.weaknesses.length > 0 ? data.weaknesses.map((w,i)=>(
+                        <div key={i} className="analysis-box fail">
+                            <span className="ab-title">{w.title} ({w.nums.join('-')})</span>
+                            <span className="ab-desc">{w.desc}</span>
+                        </div>
+                    )) : <p style={{color:'var(--success)'}}>Grid is well balanced! No major weaknesses detected.</p>}
+                </div>
+            </div>
+        );
+
+        const GridStats = () => {
+            const counts = {}; [1,2,3,4,5,6,7,8,9].forEach(n => counts[n] = 0);
+            data.gridStr.split('').forEach(char => counts[parseInt(char)]++);
+            
+            return (
+                <div className="grid-2">
+                    <div className="glass-panel">
+                        <h3>Repetition Analysis</h3>
+                        {[1,2,3,4,5,6,7,8,9].map(num => {
+                            let c = counts[num]; if(c === 0) return null;
+                            const max = Math.max(...Object.keys(repetitionDef[num]).map(Number));
+                            const use = c > max ? max : c;
+                            return (
+                                <div key={num} className="analysis-box" style={{borderLeftColor:'var(--accent)'}}>
+                                    <span className="ab-title">Number {num} (Repeats {c}x)</span>
+                                    <span className="ab-desc">{repetitionDef[num][use]}</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                    <div className="glass-panel">
+                        <h3>Missing Numbers</h3>
+                        {[1,2,3,4,5,6,7,8,9].map(num => {
+                            if(counts[num] > 0) return null;
+                            return (
+                                <div key={num} className="analysis-box fail" style={{opacity:0.8}}>
+                                    <span className="ab-title">Missing Number {num}</span>
+                                    <span className="ab-desc">{missingDef[num]}</span>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+        const Tools = () => {
+            const [val, setVal] = React.useState('');
+            const check = () => {
+                if(!val) return null;
+                const sum = val.replace(/\D/g,'').split('').reduce((a,b)=>a+parseInt(b),0);
+                const s = reduce(sum);
+                const g = goodCompounds.includes(sum);
+                const l = data.luckyAll.includes(s);
+                return (
+                    <div className={`analysis-box ${g&&l?'pass':'fail'}`} style={{marginTop:'15px'}}>
+                        <div className="ab-title">Total Sum: {sum} ({s})</div>
+                        <span className="compound-text">"{compoundDef[sum] || "Meaning not available."}"</span>
+                        <div style={{marginTop:'10px', fontWeight:'bold', color: g&&l?'var(--success)':'var(--danger)'}}>
+                            {g&&l ? "✅ EXCELLENT CHOICE" : "⚠️ AVOID IF POSSIBLE"}
+                        </div>
+                    </div>
+                )
+            };
+            return (
+                <div className="grid-2">
+                    <div className="glass-panel">
+                        <h3>Mobile / Account Analyzer</h3>
+                        <input className="input-control" value={val} onChange={e=>setVal(e.target.value)} placeholder="Enter Number..." style={{marginTop:'15px'}} />
+                        {check()}
+                    </div>
+                    
+                    <div className="glass-panel">
+                        <h3>Reference: Chaldean Value Table</h3>
+                        <div style={{display:'grid', gridTemplateColumns:'repeat(4, 1fr)', gap:'8px', fontSize:'0.8rem', textAlign:'center', marginTop:'15px'}}>
+                            {[1,2,3,4,5,6,7,8].map(n => (
+                                <div key={n} style={{background:'rgba(255,255,255,0.05)', padding:'8px', borderRadius:'4px', border:'1px solid var(--glass-border)'}}>
+                                    <strong style={{color:'var(--accent)', fontSize:'1rem'}}>{n}</strong>
+                                    <div style={{marginTop:'4px', color:'var(--text-muted)'}}>{valToCharMap[n].join(' ')}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AstroGuide = () => {
+            const [val, setVal] = React.useState('');
+            const [checkDate, setCheckDate] = React.useState('');
+            
+            const antiBasic = planetData[data.basic]?.e || [];
+            const antiDestiny = planetData[data.destiny]?.e || [];
+            const antiList = [...new Set([...antiBasic, ...antiDestiny])];
+
+            const getStatus = (n) => {
+                const single = reduce(n);
+                if (antiList.includes(single)) return { status: 'bad', text: '⚠️ ANTI-NUMBER (Avoid)', color: 'var(--danger)' };
+                if (data.luckyAll.includes(single)) return { status: 'good', text: '✅ LUCKY NUMBER', color: 'var(--success)' };
+                return { status: 'neu', text: 'Neutral / Safe', color: 'var(--text-muted)' };
+            };
+
+            const checkAsset = () => {
+                if(!val) return null;
+                const sum = val.replace(/\D/g,'').split('').reduce((a,b)=>a+parseInt(b),0);
+                const reduced = reduce(sum);
+                const result = getStatus(reduced);
+                const isCompoundGood = goodCompounds.includes(sum);
+
+                return (
+                    <div className="analysis-box" style={{marginTop:'15px', borderLeftColor: result.color, background: `linear-gradient(90deg, ${result.color}11, transparent)`}}>
+                        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                            <span className="ab-title" style={{fontSize:'1.1rem'}}>Sum: {sum} ({reduced})</span>
+                            <span className="badge" style={{background: result.color, color:'white', border:'none'}}>{reduced}</span>
+                        </div>
+                        
+                        <div style={{margin:'10px 0', fontSize:'0.9rem', fontWeight:'bold', color: result.color}}>
+                            {result.text}
+                        </div>
+
+                        <div style={{fontSize:'0.8rem', color:'var(--text-muted)', lineHeight:'1.4'}}>
+                            <strong>Destiny Law:</strong> 
+                            {result.status === 'bad' 
+                                ? " Do NOT use for House #, Bank Acct, or Phone. Do not transfer money to this sum." 
+                                : " Suitable for Real Estate, PINs, and Bank Accounts."}
+                        </div>
+                        {isCompoundGood && <div style={{marginTop:'5px', fontSize:'0.75rem', color:'var(--success)'}}>✨ Compound Number {sum} is also Auspicious.</div>}
+                    </div>
+                )
+            };
+
+            const checkDay = () => {
+                if(!checkDate) return null;
+                const day = parseInt(checkDate.split('-')[2]); 
+                const result = getStatus(day);
+                
+                return (
+                    <div className="analysis-box" style={{marginTop:'15px', borderLeftColor: result.color}}>
+                        <div className="ab-title">Date: {checkDate} (Day {day})</div>
+                        <div style={{fontSize:'1.2rem', fontWeight:'bold', margin:'5px 0', color: result.color}}>
+                            {result.status === 'good' ? "🟢 GREEN DAY (Go Ahead)" : (result.status === 'bad' ? "🔴 RED DAY (Avoid)" : "⚪ NEUTRAL DAY")}
+                        </div>
+                        <div style={{fontSize:'0.85rem', color:'var(--text-muted)'}}>
+                            {result.status === 'bad' 
+                             ? "Do not register property, sign agreements, or open accounts on this date."
+                             : "Good for taking action, registrations, and important events."}
+                        </div>
+                    </div>
+                )
+            };
+
+            return (
+                <div className="grid-2">
+                    <div className="glass-panel">
+                        <h3 style={{color:'var(--accent)'}}><i className="fas fa-search"></i> AstroMD Life Validator</h3>
+                        <p style={{fontSize:'0.8rem', color:'var(--text-muted)', marginBottom:'15px'}}>
+                            Check your <strong>Flat No, Phone No, Bank Acct</strong> or <strong>ATM Pin</strong>. 
+                            Ensure they sum to your Lucky Number and NEVER your Anti-Number.
+                        </p>
+
+                        <input className="input-control" value={val} onChange={e=>setVal(e.target.value)} placeholder="Enter Number (e.g. 104, 9899...)" />
+                        {checkAsset()}
+
+                        <div style={{marginTop:'25px', paddingTop:'20px', borderTop:'1px dashed var(--glass-border)'}}>
+                            <h4 style={{fontSize:'0.9rem', color:'var(--text-main)', marginBottom:'10px'}}>📅 Date Planner (Registration/Agreements)</h4>
+                            <input type="date" className="input-control" value={checkDate} onChange={e=>setCheckDate(e.target.value)} />
+                            {checkDay()}
+                        </div>
+                    </div>
+
+                    <div className="glass-panel">
+                        <h3 style={{color:'var(--danger)'}}><i className="fas fa-ban"></i> Your Anti-Numbers</h3>
+                        <div className="analysis-box fail" style={{marginBottom:'20px'}}>
+                            <div className="ab-desc">Destiny's Forbidden Law: Never use these numbers for important life assets.</div>
+                            <div style={{fontSize:'2rem', fontWeight:'700', color:'var(--danger)', marginTop:'10px', display:'flex', gap:'10px'}}>
+                                {antiList.map(n => <span key={n}>{n}</span>)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        return (
+            <div className="app-wrapper">
+                <div className="header">
+                    <h1>ASTRONUMEROLOGY</h1>
+                    <p style={{color:'var(--text-muted)', fontSize:'0.9rem', letterSpacing:'2px', textTransform:'uppercase'}}>Ultimate Edition</p>
+                </div>
+
+                <div className="glass-panel">
+                    <div className="input-grid">
+                        <div className="input-group"><label>Full Name</label><input className="input-control" value={inputs.name} onChange={e=>setInputs({...inputs, name:e.target.value})} placeholder="Enter Name" /></div>
+                        
+                        <div className="input-group">
+                            <label>Day</label>
+                            <select className="input-control" value={inputs.d} onChange={e=>setInputs({...inputs, d:e.target.value})}>
+                                <option value="">DD</option>
+                                {[...Array(31)].map((_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}
+                            </select>
+                        </div>
+                        
+                        <div className="input-group">
+                            <label>Month</label>
+                            <select className="input-control" value={inputs.m} onChange={e=>setInputs({...inputs, m:e.target.value})}>
+                                <option value="">MM</option>
+                                {[...Array(12)].map((_,i)=><option key={i+1} value={i+1}>{i+1}</option>)}
+                            </select>
+                        </div>
+                        
+                        <div className="input-group">
+                            <label>Year</label>
+                            <input type="number" className="input-control" value={inputs.y} onChange={e=>setInputs({...inputs, y:e.target.value})} placeholder="YYYY" />
+                        </div>
+
+                        <div className="input-group">
+                            <label>Gender</label>
+                            <select className="input-control" value={inputs.gender} onChange={e=>setInputs({...inputs, gender:e.target.value})}>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+                        
+                        <button className="btn-magic" onClick={calculate}>ANALYZE</button>
+                    </div>
+                </div>
+
+                {data && (
+                    <React.Fragment>
+                        <div className="tabs">
+                            <button className={`tab-btn ${activeTab==='dash'?'active':''}`} onClick={()=>setActiveTab('dash')}><i className="fas fa-chart-pie"></i> Dashboard</button>
+                            <button className={`tab-btn ${activeTab==='deep'?'active':''}`} onClick={()=>setActiveTab('deep')}><i className="fas fa-layer-group"></i> Planes</button>
+                            <button className={`tab-btn ${activeTab==='stats'?'active':''}`} onClick={()=>setActiveTab('stats')}><i className="fas fa-list-ol"></i> Grid Stats</button>
+                            <button className={`tab-btn ${activeTab==='name'?'active':''}`} onClick={()=>setActiveTab('name')}><i className="fas fa-pen-nib"></i> Correction</button>
+                            <button className={`tab-btn ${activeTab==='tools'?'active':''}`} onClick={()=>setActiveTab('tools')}><i className="fas fa-calculator"></i> Tools</button>
+                            <button className={`tab-btn ${activeTab==='astromd'?'active':''}`} onClick={()=>setActiveTab('astromd')}><i className="fas fa-star"></i> AstroMD Guide</button>
+                        </div>
+
+                        {activeTab === 'dash' && <Dashboard />}
+                        {activeTab === 'deep' && <DeepAnalysis />}
+                        {activeTab === 'stats' && <GridStats />}
+                        {activeTab === 'name' && <NameCorrection />}
+                        {activeTab === 'tools' && <Tools />}
+                        {activeTab === 'astromd' && <AstroGuide />}
+                    </React.Fragment>
+                )}
+            </div>
+        );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
